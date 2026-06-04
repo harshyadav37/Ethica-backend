@@ -10,34 +10,39 @@ const joinCommunity = async (req, res) => {
     let community;
     let actualCommunityId;
 
-    // Check if the ID is a valid MongoDB ObjectId (24 hex chars)
-    const isValidObjectId = mongoose.Types.ObjectId.isValid(communityId) && 
-                           /^[0-9a-fA-F]{24}$/.test(communityId);
-
+    // Method 1: Check if it's a valid MongoDB ObjectId
+    const isValidObjectId = mongoose.Types.ObjectId.isValid(communityId) && /^[0-9a-fA-F]{24}$/.test(communityId);
+    
     if (isValidObjectId) {
-      // It's a valid MongoDB ObjectId, search by _id
       community = await Community.findById(communityId);
-      if (community) {
-        actualCommunityId = community._id;
-      }
-    } else {
-      // It's not a valid ObjectId (like 'local-17'), search by slug or custom field
-      // Try to find by slug first
+    }
+    
+    // Method 2: Try to find by slug field
+    if (!community) {
       community = await Community.findOne({ slug: communityId });
-      
-      // If not found by slug, try to find by name (case-insensitive)
-      if (!community) {
-        community = await Community.findOne({ 
-          name: { $regex: new RegExp(`^${communityId}$`, 'i') } 
-        });
-      }
-      
-      if (community) {
-        actualCommunityId = community._id;
-      }
+    }
+    
+    // Method 3: Try to find by exact name match (case-insensitive)
+    if (!community) {
+      community = await Community.findOne({ 
+        name: { $regex: new RegExp(`^${communityId}$`, 'i') } 
+      });
+    }
+    
+    // Method 4: Try to find by partial name match
+    if (!community) {
+      community = await Community.findOne({ 
+        name: { $regex: communityId, $options: 'i' } 
+      });
+    }
+    
+    // Method 5: If communityId is a number, try to find by communityNumber field
+    if (!community && !isNaN(communityId)) {
+      community = await Community.findOne({ 
+        communityNumber: parseInt(communityId) 
+      });
     }
 
-    // Check community exists
     if (!community) {
       return res.status(404).json({
         success: false,
@@ -45,7 +50,9 @@ const joinCommunity = async (req, res) => {
       });
     }
 
-    // Check if user already joined using the actual MongoDB ObjectId
+    actualCommunityId = community._id;
+
+    // Check if user already joined
     const alreadyJoined = await JoinCommunity.findOne({
       communityId: actualCommunityId,
       userId,
@@ -58,22 +65,18 @@ const joinCommunity = async (req, res) => {
       });
     }
 
-    // Add member with actual MongoDB ObjectId
+    // Add member
     await JoinCommunity.create({
       communityId: actualCommunityId,
       userId,
     });
 
-    // Update member count (fixed: increment by 1 instead of 0)
-    const updatedCommunity = await Community.findByIdAndUpdate(
+    // Update member count (FIX: change from 0 to 1)
+    await Community.findByIdAndUpdate(
       actualCommunityId,
-      {
-        $inc: { membersCount: 1 },
-      },
-      { new: true }
+      { $inc: { membersCount: 1 } }
     );
 
-    // Actual members count from JoinCommunity collection
     const totalMembers = await JoinCommunity.countDocuments({
       communityId: actualCommunityId,
     });
@@ -81,14 +84,13 @@ const joinCommunity = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Community joined successfully",
-      communityId: updatedCommunity._id,
-      communityName: updatedCommunity.name,
+      communityId: community._id,
+      communityName: community.name,
       membersCount: totalMembers,
     });
 
   } catch (error) {
     console.error("Join Community Error:", error);
-
     return res.status(500).json({
       success: false,
       message: error.message,
