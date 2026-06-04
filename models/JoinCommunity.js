@@ -7,7 +7,6 @@ const communityMemberSchema = new mongoose.Schema(
       ref: "Community",
       required: true,
     },
-
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -19,13 +18,11 @@ const communityMemberSchema = new mongoose.Schema(
   }
 );
 
-// Ek user ek hi community ko ek baar join kar sake
+// One user can join a community only once
 communityMemberSchema.index(
   { communityId: 1, userId: 1 },
   { unique: true }
 );
 
-module.exports = mongoose.model(
-  "CommunityMember",
-  communityMemberSchema
-);
+// Ensure you're exporting with the correct model name
+module.exports = mongoose.model("CommunityMember", communityMemberSchema);
