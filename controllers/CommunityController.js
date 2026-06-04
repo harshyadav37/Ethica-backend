@@ -1,7 +1,7 @@
-// controllers/communityController.js
-
 import Community from "../models/Community.js";
+import CommunityMember from "../models/JoinCommunity.js";
 
+// Create Community
 export const createCommunity = async (req, res) => {
   try {
     const { name, description, category } = req.body;
@@ -13,9 +13,7 @@ export const createCommunity = async (req, res) => {
       });
     }
 
-    const existingCommunity = await Community.findOne({
-      name,
-    });
+    const existingCommunity = await Community.findOne({ name });
 
     if (existingCommunity) {
       return res.status(400).json({
@@ -35,6 +33,41 @@ export const createCommunity = async (req, res) => {
       success: true,
       message: "Community created successfully",
       community,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+
+// Get All Communities
+export const getCommunities = async (req, res) => {
+  try {
+    const communities = await Community.find()
+      .sort({ createdAt: -1 });
+
+    const communitiesWithMembers = await Promise.all(
+      communities.map(async (community) => {
+        const memberCount =
+          await CommunityMember.countDocuments({
+            communityId: community._id,
+          });
+
+        return {
+          ...community.toObject(),
+          membersCount: memberCount,
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      count: communitiesWithMembers.length,
+      data: communitiesWithMembers,
     });
   } catch (error) {
     console.log(error);
