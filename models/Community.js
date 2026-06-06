@@ -34,7 +34,7 @@ const communitySchema = new Schema(
 
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "SOCIAL",
       required: true,
     },
 
@@ -42,6 +42,12 @@ const communitySchema = new Schema(
       type: Number,
       default: 0,
     },
+     members: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "SOCIAL",
+      },
+    ],
 
     posts: [
       {

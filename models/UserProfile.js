@@ -105,7 +105,7 @@ const UserProfileSchema = new Schema(
     // ✅ Link profile to authenticated user
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "USER",
+      ref: "SOCIAL",
       required: true,
       unique: true,
     },

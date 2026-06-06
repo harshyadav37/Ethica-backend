@@ -7,6 +7,7 @@ const {createUserProfile, updateUserProfile, getUserProfile,} = require("../cont
 const { createCommunity ,getCommunities } = require("../controllers/CommunityController");
 const authMiddleware = require("../middlewares/commonMiddlewares");
 const { joinCommunity ,leaveCommunity } = require("../controllers/JoinCommunity");
+const { followUser, unfollowUser ,getFollowers ,getFollowing } = require("../controllers/FollowController");
 // ✅ Create Profile
 router.post( "/createUserProfile", authMiddleware,  createUserProfile);
 
@@ -25,5 +26,14 @@ router.get("/getcommunities", authMiddleware, getCommunities);
 router.post("/joinCommunity/:communityId", authMiddleware, joinCommunity);
 // ✅ Leave Community
     router.delete("/leaveCommunity/:communityId", authMiddleware, leaveCommunity);
+
+    // ✅ Follow User
+router.post("/follow/:userId", authMiddleware, followUser);
+// ✅ Unfollow User
+router.delete("/unfollow/:userId", authMiddleware, unfollowUser);
+// ✅ Get Followers
+router.get("/followers/:userId", authMiddleware, getFollowers);
+// ✅ Get Following
+router.get("/following/:userId", authMiddleware, getFollowing);
 
 module.exports = router;

@@ -52,14 +52,22 @@ export const getCommunities = async (req, res) => {
 
     const communitiesWithMembers = await Promise.all(
       communities.map(async (community) => {
-        const memberCount =
-          await CommunityMember.countDocuments({
-            communityId: community._id,
-          });
+        const members = await CommunityMember.find({
+          communityId: community._id,
+        }).populate(
+          "userId",
+          "_id name profilePic"
+        );
 
         return {
           ...community.toObject(),
-          membersCount: memberCount,
+          membersCount: members.length,
+
+          members: members.map((member) => ({
+            _id: member.userId?._id,
+            name: member.userId?.name,
+            profilePic: member.userId?.profilePic,
+          })),
         };
       })
     );
