@@ -8,7 +8,7 @@ const { createCommunity ,getCommunities } = require("../controllers/CommunityCon
 const authMiddleware = require("../middlewares/commonMiddlewares");
 const { joinCommunity ,leaveCommunity } = require("../controllers/JoinCommunity");
 const { followUser, unfollowUser ,getFollowers ,getFollowing } = require("../controllers/FollowController");
-const {  createConversation,  sendMessage,  getMessages,  getConversations,} =require( "../controllers/messageController.js");
+const {  createConversation,  sendMessage,  getMessages,  getConversations,} =require( "../controllers/MessageController");
 // ✅ Create Profile
 router.post( "/createUserProfile", authMiddleware,  createUserProfile);
 
