@@ -97,6 +97,8 @@ export const getFollowing = async (req, res) => {
   try {
     const { userId } = req.params;
 
+    console.log("Requested Following UserId:", userId);
+
     const following = await Follow.find({
       follower: userId,
     }).populate(
@@ -104,15 +106,31 @@ export const getFollowing = async (req, res) => {
       "_id name profileImage"
     );
 
-    res.status(200).json({
+    console.log(
+      "Following Count:",
+      following.length
+    );
+
+    console.log(
+      "Following Data:",
+      JSON.stringify(following, null, 2)
+    );
+
+    return res.status(200).json({
       success: true,
       count: following.length,
       data: following,
     });
   } catch (error) {
-    res.status(500).json({
+    console.log(
+      "Get Following Error:",
+      error
+    );
+
+    return res.status(500).json({
       success: false,
       message: "Server Error",
+      error: error.message,
     });
   }
 };

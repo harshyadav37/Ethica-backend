@@ -8,6 +8,7 @@ const { createCommunity ,getCommunities } = require("../controllers/CommunityCon
 const authMiddleware = require("../middlewares/commonMiddlewares");
 const { joinCommunity ,leaveCommunity } = require("../controllers/JoinCommunity");
 const { followUser, unfollowUser ,getFollowers ,getFollowing } = require("../controllers/FollowController");
+const {  createConversation,  sendMessage,  getMessages,  getConversations,} =require( "../controllers/messageController.js");
 // ✅ Create Profile
 router.post( "/createUserProfile", authMiddleware,  createUserProfile);
 
@@ -35,5 +36,15 @@ router.delete("/unfollow/:userId", authMiddleware, unfollowUser);
 router.get("/followers/:userId", authMiddleware, getFollowers);
 // ✅ Get Following
 router.get("/following/:userId", authMiddleware, getFollowing);
+// conversation 
 
+router.post("/conversation",authMiddleware,createConversation);
+
+// sendMessage
+router.post("/sendMessage" , authMiddleware,sendMessage);
+// getMessage
+router.get( "/getMessage/:conversationId", authMiddleware,getMessages);
+
+// get conversation 
+router.get("/getConversation", authMiddleware, getConversations)
 module.exports = router;
