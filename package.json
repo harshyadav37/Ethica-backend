@@ -1,7 +1,8 @@
 {
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "build": "echo \"No build step defined; use 'npm start' or 'npm run dev'\""
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
